@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Sent | Simulated QR</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#17212f;background:#eef8f2}body{margin:0}.wrap{max-width:560px;margin:42px auto;padding:0 18px}.card{background:#fff;border-radius:22px;padding:30px;box-shadow:0 10px 30px #165c3518;text-align:center}.check{width:78px;height:78px;border-radius:50%;background:#d8f5e4;color:#087443;display:grid;place-items:center;font-size:44px;font-weight:800;margin:0 auto 16px}.sent{color:#087443;font-size:30px;font-weight:850;margin:0}.sub{color:#607080;margin:8px 0 24px}.amount{font-size:38px;font-weight:850;margin:6px 0 22px;color:#152b1e}.details{text-align:left;border-top:1px solid #e3ebe6}.row{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid #e3ebe6}.label{color:#687786}.value{text-align:right;font-weight:750;overflow-wrap:anywhere}.reference{color:#075e38}.warning{margin-top:22px;background:#fff7df;border:1px solid #f3cf66;border-radius:10px;padding:12px;text-align:left;font-size:13px}.back{display:inline-block;margin-top:22px;color:#1259d5;text-decoration:none;font-weight:700}
+  </style>
+</head>
+<body><main class="wrap"><section class="card">
+  <div class="check">✓</div><h1 class="sent">PAYMENT SENT</h1><p class="sub">Demo payment approved successfully</p>
+  <div class="amount">__AMOUNT__ __CURRENCY__</div>
+  <div class="details">
+    <div class="row"><span class="label">Date and time</span><strong class="value" id="time">__CONFIRMED_AT__</strong></div>
+    <div class="row"><span class="label">Payment method</span><strong class="value">QR</strong></div>
+    <div class="row"><span class="label">Transaction ID</span><strong class="value">__TRANSACTION_ID__</strong></div>
+    <div class="row"><span class="label">Payment ID</span><strong class="value">__PAYMENT_ID__</strong></div>
+    <div class="row"><span class="label">Reference number</span><strong class="value reference">__REFERENCE__</strong></div>
+  </div>
+  <div class="warning"><strong>SIMULATION ONLY</strong><br>No real money was sent. This receipt is for the Lab 4 demo.</div>
+  <a class="back" href="/">Return to Checkout Counter</a>
+</section></main>
+<script>
+const time=document.getElementById('time'); const parsed=new Date(time.textContent); if(!Number.isNaN(parsed.valueOf())) time.textContent=parsed.toLocaleString();
+</script></body></html>

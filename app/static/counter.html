@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout Counter | Simulated QR</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#18212f;background:#f4f7fb}body{margin:0}.wrap{max-width:980px;margin:36px auto;padding:0 20px}.card{background:white;border:1px solid #dce4ee;border-radius:18px;padding:24px;box-shadow:0 8px 24px #1b35530d}h1{margin:0 0 8px}.muted{color:#667085}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.field{margin:12px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.field input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px}button{background:#1259d5;color:#fff;border:0;border-radius:9px;padding:12px 18px;font-weight:700;cursor:pointer}button:hover{background:#0e46a8}.demo{background:#fff7df;border:1px solid #f3cf66;border-radius:10px;padding:12px;margin:16px 0}.status{font-weight:700}.qr{display:none;text-align:center}.qr img{width:min(330px,100%);border:12px solid white;box-shadow:0 1px 9px #0002}.pill{display:inline-block;padding:5px 10px;border-radius:99px;background:#e8eefb;font-size:13px;font-weight:700}.error{color:#b42318}.success{color:#067647}.sent{display:none;background:#d8f5e4;border:3px solid #65c78f;border-radius:16px;padding:20px;margin-top:22px;text-align:center}.sent h2{color:#087443;font-size:29px;margin:0 0 8px}.receipt{display:inline-block;background:#087443;color:#fff;text-decoration:none;border-radius:9px;padding:12px 18px;font-weight:750;margin-top:10px}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main class="wrap">
+  <section class="card"><h1>Checkout Counter</h1><p class="muted">Workstream F · Simulated QR payment</p>
+    <div class="demo"><strong>SIMULATION ONLY</strong><br>This lab never contacts a real payment provider and must not collect card, PIN, password, bank, or wallet credentials.</div>
+    <div class="grid"><div>
+      <div class="field"><label>Transaction ID</label><input id="transaction" value="TX-20260928-000045"></div>
+      <div class="field"><label>Amount (DEMO)</label><input id="amount" value="6.80" type="number" step="0.01"></div>
+      <div class="field"><label>Payment token (optional)</label><input id="token" value="PAY-SIM-000123"></div>
+      <button id="start">Generate QR payment</button>
+      <p id="message" class="status"></p>
+    </div><div class="qr" id="qrPanel">
+      <span class="pill">Scan with phone on same network</span><p><img id="qr" alt="QR code for simulated payment"></p>
+      <p><strong>Amount:</strong> <span id="displayAmount"></span> DEMO</p><p><strong>Transaction:</strong> <span id="displayTransaction"></span></p>
+      <p class="muted">Simulation only · waiting for phone confirmation</p>
+    </div></div>
+    <div class="sent" id="sentPanel"><h2>PAYMENT SENT</h2><p>Demo payment approved successfully.</p><a id="receipt" class="receipt" target="_blank">View Payment Receipt</a></div>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id); let poll;
+$('start').onclick=async()=>{ $('sentPanel').style.display='none';$('message').textContent='Creating PENDING_PAYMENT…'; $('message').className='status';
+  const body={transaction_id:$('transaction').value,method:'QR',amount:Number($('amount').value),currency:'DEMO'}; if($('token').value) body.payment_token=$('token').value;
+  const r=await fetch('/api/payments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); const data=await r.json();
+  if(!r.ok){$('message').textContent=data.detail||'Unable to create payment';$('message').className='status error';return;}
+  $('qr').src=data.qr_image_url+'?t='+Date.now();$('displayAmount').textContent=data.amount.toFixed(2);$('displayTransaction').textContent=data.transaction_id;$('qrPanel').style.display='block';$('message').textContent='PENDING_PAYMENT';
+  clearInterval(poll); poll=setInterval(async()=>{const s=await (await fetch('/api/payments/'+data.payment_token)).json(); if(s.status!=='PENDING'){clearInterval(poll);if(s.status==='SUCCESS'){$('message').textContent='PAYMENT SENT · PAYMENT_SUCCESS';$('message').className='status success';$('receipt').href='/receipt/'+data.payment_token;$('sentPanel').style.display='block'}else{$('message').textContent='Payment FAILED · transaction '+s.transaction_status;$('message').className='status error'} }},1500);
+};
+</script></body></html>
